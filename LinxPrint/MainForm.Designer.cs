@@ -60,10 +60,10 @@
             this.progressLabelToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBarToolStrip = new System.Windows.Forms.ToolStripProgressBar();
             this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.colCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPrinted = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colPrintedOn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -90,20 +90,22 @@
             this.importToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(60, 20);
+            this.fileToolStripMenuItem.Text = "&Archivo";
             // 
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
-            this.importToolStripMenuItem.Text = "Import";
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.importToolStripMenuItem.Text = "Importar...";
+            this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.exitToolStripMenuItem.Text = "Salir";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -111,22 +113,22 @@
             this.editModeToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "&Edit";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.editToolStripMenuItem.Text = "&Edición";
             // 
             // editModeToolStripMenuItem
             // 
             this.editModeToolStripMenuItem.CheckOnClick = true;
             this.editModeToolStripMenuItem.Name = "editModeToolStripMenuItem";
-            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
-            this.editModeToolStripMenuItem.Text = "EditMode";
+            this.editModeToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.editModeToolStripMenuItem.Text = "Modo de edición";
             this.editModeToolStripMenuItem.CheckedChanged += new System.EventHandler(this.editModeToolStripMenuItem_CheckedChanged);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.deleteToolStripMenuItem.Text = "Eliminar";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // printToolStripMenuItem
@@ -135,35 +137,36 @@
             this.printAllToolStripMenuItem,
             this.printSelectionToolStripMenuItem});
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.printToolStripMenuItem.Text = "&Print";
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(72, 20);
+            this.printToolStripMenuItem.Text = "&Impresión";
             // 
             // printAllToolStripMenuItem
             // 
             this.printAllToolStripMenuItem.Name = "printAllToolStripMenuItem";
-            this.printAllToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.printAllToolStripMenuItem.Text = "Print All";
+            this.printAllToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.printAllToolStripMenuItem.Text = "Imprimir todo";
             this.printAllToolStripMenuItem.Click += new System.EventHandler(this.printAllToolStripMenuItem_Click);
             // 
             // printSelectionToolStripMenuItem
             // 
             this.printSelectionToolStripMenuItem.Name = "printSelectionToolStripMenuItem";
-            this.printSelectionToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.printSelectionToolStripMenuItem.Text = "Print Selection";
+            this.printSelectionToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.printSelectionToolStripMenuItem.Text = "Imprimir selección";
+            this.printSelectionToolStripMenuItem.Click += new System.EventHandler(this.printSelectionToolStripMenuItem_Click);
             // 
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
-            this.toolsToolStripMenuItem.Text = "&Tools";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(90, 20);
+            this.toolsToolStripMenuItem.Text = "&Herramientas";
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.settingsToolStripMenuItem.Text = "Configuración...";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // toolStrip
@@ -191,7 +194,9 @@
             this.importToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.importToolStripButton.Name = "importToolStripButton";
             this.importToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.importToolStripButton.Text = "toolStripButton1";
+            this.importToolStripButton.Text = "Importar...";
+            this.importToolStripButton.ToolTipText = "Importar...";
+            this.importToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -200,12 +205,15 @@
             // 
             // editModeToolStripButton
             // 
+            this.editModeToolStripButton.CheckOnClick = true;
             this.editModeToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.editModeToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("editModeToolStripButton.Image")));
             this.editModeToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.editModeToolStripButton.Name = "editModeToolStripButton";
             this.editModeToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.editModeToolStripButton.Text = "toolStripButton2";
+            this.editModeToolStripButton.Text = "Modo de edición";
+            this.editModeToolStripButton.ToolTipText = "Modo de edición";
+            this.editModeToolStripButton.Click += new System.EventHandler(this.editModeToolStripMenuItem_CheckedChanged);
             // 
             // deleteToolStripButton
             // 
@@ -214,7 +222,9 @@
             this.deleteToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.deleteToolStripButton.Name = "deleteToolStripButton";
             this.deleteToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.deleteToolStripButton.Text = "toolStripButton3";
+            this.deleteToolStripButton.Text = "Eliminar";
+            this.deleteToolStripButton.ToolTipText = "Eliminar";
+            this.deleteToolStripButton.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -228,7 +238,9 @@
             this.printToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.printToolStripButton.Name = "printToolStripButton";
             this.printToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.printToolStripButton.Text = "toolStripButton4";
+            this.printToolStripButton.Text = "Imprimir todo";
+            this.printToolStripButton.ToolTipText = "Imprimir todo";
+            this.printToolStripButton.Click += new System.EventHandler(this.printAllToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -317,8 +329,13 @@
             this.dataGridView.ReadOnly = true;
             this.dataGridView.Size = new System.Drawing.Size(598, 313);
             this.dataGridView.TabIndex = 3;
+            this.dataGridView.RowValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_RowValidated);
             this.dataGridView.UserAddedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserAddedRow);
             this.dataGridView.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserDeletedRow);
+            // 
+            // bindingSource
+            // 
+            this.bindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.bindingSource_AddingNew);
             // 
             // colCode
             // 
@@ -329,6 +346,7 @@
             // 
             // colPrinted
             // 
+            this.colPrinted.DataPropertyName = "Printed";
             this.colPrinted.HeaderText = "Impreso";
             this.colPrinted.Name = "colPrinted";
             this.colPrinted.ReadOnly = true;
@@ -336,6 +354,7 @@
             // 
             // colPrintedOn
             // 
+            this.colPrintedOn.DataPropertyName = "PrintedOn";
             this.colPrintedOn.HeaderText = "Fecha de impresión";
             this.colPrintedOn.Name = "colPrintedOn";
             this.colPrintedOn.ReadOnly = true;
@@ -399,9 +418,9 @@
         private System.Windows.Forms.ToolStripProgressBar progressBarToolStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCode;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colPrinted;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedOn;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
     }
 }

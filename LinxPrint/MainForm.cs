@@ -35,10 +35,6 @@ namespace LinxPrint
 
         private void dataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
         {
-            if (e.Row.IsNewRow)
-                _itemsManager.AddItem(e.Row.DataBoundItem as Item);
-            else
-                _itemsManager.UpdateItem(e.Row.DataBoundItem as Item);
         }
 
         private void dataGridView_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
@@ -53,7 +49,7 @@ namespace LinxPrint
 
             if (DateTime.TryParse(dateStr, out date))
             {
-                var items = _itemsManager.GetByCreated(dateToolStripTextBox.Text);
+                var items = _itemsManager.GetByCreated(date);
                 bindingSource.DataSource = items;
                 bindingSource.ResetBindings(false);
             }
@@ -82,6 +78,7 @@ namespace LinxPrint
                     //Set post print values
                     typedItem.Printed = true;
                     typedItem.PrintedOn = DateTime.Now;
+                    _itemsManager.UpdateItem(typedItem);
                 }
             }
             finally
@@ -89,6 +86,8 @@ namespace LinxPrint
                 this.Cursor = Cursors.Default;
                 HidePrintingProgress();
             }
+
+            bindingSource.ResetBindings(false);
         }
 
         private void HidePrintingProgress()
@@ -114,6 +113,65 @@ namespace LinxPrint
                     _portName = settingsForm.PortName;
                 }
             }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void bindingSource_AddingNew(object sender, System.ComponentModel.AddingNewEventArgs e)
+        {
+            e.NewObject = new Item();
+        }
+
+        private void dataGridView_RowValidated(object sender, DataGridViewCellEventArgs e)
+        {
+            var item = dataGridView.Rows[e.RowIndex].DataBoundItem as Item;
+
+            if (item == null) return;
+
+            if (item.Id <= 0)
+                _itemsManager.AddItem(item);
+            else
+                _itemsManager.UpdateItem(item);
+        }
+
+        private void printSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedRows = dataGridView.SelectedRows;
+
+            ILinxPrinter printer = new SerialPortPrinter(_portName);
+
+            var items = bindingSource.List;
+
+            this.Cursor = Cursors.WaitCursor;
+            ShowPrintingProgress();
+
+            try
+            {
+                foreach (DataGridViewRow selectedRow in selectedRows)
+                {
+                    var typedItem = selectedRow.DataBoundItem as Item;
+                    printer.Print(typedItem.Code);
+                    //Set post print values
+                    typedItem.Printed = true;
+                    typedItem.PrintedOn = DateTime.Now;
+                    _itemsManager.UpdateItem(typedItem);
+                }
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                HidePrintingProgress();
+            }
+
+            bindingSource.ResetBindings(false);
         }
     }
 }

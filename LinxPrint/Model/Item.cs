@@ -8,6 +8,7 @@ namespace LinxPrint.Model
 
     public class Item
     {
+        public int Id { get; set; }
         public string Code { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public bool Printed { get; set; }
