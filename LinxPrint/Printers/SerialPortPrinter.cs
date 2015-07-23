@@ -4,6 +4,7 @@
 
 namespace LinxPrint.Printers
 {
+    using System;
     using System.IO.Ports;
 
     public class SerialPortPrinter : ILinxPrinter
@@ -32,19 +33,20 @@ namespace LinxPrint.Printers
 
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
-
+            if (_serialPort.IsOpen) _serialPort.Close();
         }
 
         public void Print(string text)
         {
             _serialPort.Open();
+
             try
             {
                 _serialPort.WriteLine(text);
             }
             finally
             {
-                _serialPort.Close();
+                if (_serialPort.IsOpen) _serialPort.Close();
             }
         }
     }

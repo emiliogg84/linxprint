@@ -42,6 +42,7 @@
             this.printSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serialPortConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -53,17 +54,17 @@
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.dateToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.portNameToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressLabelToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBarToolStrip = new System.Windows.Forms.ToolStripProgressBar();
             this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.colCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPrinted = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colPrintedOn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -157,7 +158,8 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.settingsToolStripMenuItem});
+            this.settingsToolStripMenuItem,
+            this.serialPortConfigToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(90, 20);
             this.toolsToolStripMenuItem.Text = "&Herramientas";
@@ -165,9 +167,16 @@
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
             this.settingsToolStripMenuItem.Text = "Configuración...";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
+            // serialPortConfigToolStripMenuItem
+            // 
+            this.serialPortConfigToolStripMenuItem.Name = "serialPortConfigToolStripMenuItem";
+            this.serialPortConfigToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.serialPortConfigToolStripMenuItem.Text = "SerialPort Información";
+            this.serialPortConfigToolStripMenuItem.Click += new System.EventHandler(this.serialPortConfigToolStripMenuItem_Click);
             // 
             // toolStrip
             // 
@@ -262,7 +271,7 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel2,
+            this.portNameToolStrip,
             this.toolStripStatusLabel4,
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel3,
@@ -274,11 +283,11 @@
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel2
+            // portNameToolStrip
             // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(82, 17);
-            this.toolStripStatusLabel2.Text = "Puerto: COM1";
+            this.portNameToolStrip.Name = "portNameToolStrip";
+            this.portNameToolStrip.Size = new System.Drawing.Size(82, 17);
+            this.portNameToolStrip.Text = "Puerto: COM1";
             // 
             // toolStripStatusLabel4
             // 
@@ -333,10 +342,6 @@
             this.dataGridView.UserAddedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserAddedRow);
             this.dataGridView.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserDeletedRow);
             // 
-            // bindingSource
-            // 
-            this.bindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.bindingSource_AddingNew);
-            // 
             // colCode
             // 
             this.colCode.DataPropertyName = "Code";
@@ -359,6 +364,10 @@
             this.colPrintedOn.Name = "colPrintedOn";
             this.colPrintedOn.ReadOnly = true;
             this.colPrintedOn.Width = 140;
+            // 
+            // bindingSource
+            // 
+            this.bindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.bindingSource_AddingNew);
             // 
             // MainForm
             // 
@@ -416,11 +425,12 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel progressLabelToolStrip;
         private System.Windows.Forms.ToolStripProgressBar progressBarToolStrip;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        private System.Windows.Forms.ToolStripStatusLabel portNameToolStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCode;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colPrinted;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedOn;
+        private System.Windows.Forms.ToolStripMenuItem serialPortConfigToolStripMenuItem;
     }
 }

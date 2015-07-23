@@ -28,6 +28,19 @@ namespace LinxPrint.Model
             _dataContext.SaveChanges();
         }
 
+        public void AddItemCodes(params string[] codes)
+        {
+            Item item = null;
+
+            foreach (var code in codes)
+            {
+                item = new Item { Code = code };
+                _items.Add(item);
+            }
+
+            _dataContext.SaveChanges();
+        }
+
         public void UpdateItem(Item item)
         {
             _dataContext.Entry<Item>(item).State = EntityState.Modified;

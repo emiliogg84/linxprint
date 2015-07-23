@@ -5,9 +5,11 @@
 namespace LinxPrint
 {
     using System;
+    using System.IO;
     using System.Windows.Forms;
     using LinxPrint.Model;
     using LinxPrint.Printers;
+    using System.Collections.Generic;
 
     public partial class MainForm : Form
     {
@@ -19,6 +21,8 @@ namespace LinxPrint
             base.OnLoad(e);
 
             dateToolStripTextBox.Text = DateTime.Now.ToShortDateString();
+
+            UpdateComponentStatus();
         }
 
         public MainForm()
@@ -75,11 +79,16 @@ namespace LinxPrint
                 {
                     var typedItem = item as Item;
                     printer.Print(typedItem.Code);
+                    Application.DoEvents(); //Simulate asynchronous processing
                     //Set post print values
                     typedItem.Printed = true;
                     typedItem.PrintedOn = DateTime.Now;
                     _itemsManager.UpdateItem(typedItem);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
             }
             finally
             {
@@ -99,9 +108,10 @@ namespace LinxPrint
 
         private void ShowPrintingProgress()
         {
+            progressLabelToolStrip.Text = "Imprimiendo...";
+            progressLabelToolStrip.Visible = true;
             progressBarToolStrip.Enabled = true;
             progressBarToolStrip.Visible = true;
-            progressLabelToolStrip.Visible = true;
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,6 +123,13 @@ namespace LinxPrint
                     _portName = settingsForm.PortName;
                 }
             }
+
+            UpdateComponentStatus();
+        }
+
+        private void UpdateComponentStatus()
+        {
+            portNameToolStrip.Text = string.Format("Puerto: {0}", _portName);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -122,7 +139,50 @@ namespace LinxPrint
 
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            List<string> codes = new List<string>();
 
+            using (var openFileDlg = new OpenFileDialog())
+            {
+                if (openFileDlg.ShowDialog() == DialogResult.OK)
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    ShowImportingProgress();
+                    try
+                    {
+                        using (var sr = new StreamReader(openFileDlg.FileName))
+                        {
+                            while (!sr.EndOfStream)
+                            {
+                                var text = sr.ReadLine();
+                                codes.Add(text);
+                            }
+
+                            _itemsManager.AddItemCodes(codes.ToArray());
+                            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
+                        }
+                    }
+                    finally
+                    {
+                        this.Cursor = Cursors.Default;
+                        HideImportingProgess();
+                    }
+                }
+            }
+        }
+
+        private void HideImportingProgess()
+        {
+            progressBarToolStrip.Enabled = false;
+            progressBarToolStrip.Visible = false;
+            progressLabelToolStrip.Visible = false;
+        }
+
+        private void ShowImportingProgress()
+        {
+            progressLabelToolStrip.Text = "Importando...";
+            progressLabelToolStrip.Visible = true;
+            progressBarToolStrip.Enabled = true;
+            progressBarToolStrip.Visible = true;
         }
 
         private void bindingSource_AddingNew(object sender, System.ComponentModel.AddingNewEventArgs e)
@@ -159,11 +219,16 @@ namespace LinxPrint
                 {
                     var typedItem = selectedRow.DataBoundItem as Item;
                     printer.Print(typedItem.Code);
+                    Application.DoEvents(); //Simulate asynchronous processing
                     //Set post print values
                     typedItem.Printed = true;
                     typedItem.PrintedOn = DateTime.Now;
                     _itemsManager.UpdateItem(typedItem);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
             }
             finally
             {
@@ -172,6 +237,12 @@ namespace LinxPrint
             }
 
             bindingSource.ResetBindings(false);
+        }
+
+        private void serialPortConfigToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(string.Format("PortName: {0} \n BaudRate: 9600\n Parity: None\n DataBits: 8\n StopBits: One\n Handshake: None", _portName),
+                "SerialPort");
         }
     }
 }

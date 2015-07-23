@@ -32,14 +32,15 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.label1 = new System.Windows.Forms.Label();
             this.cbxPortNames = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnAcept
             // 
+            this.btnAcept.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnAcept.Location = new System.Drawing.Point(96, 224);
             this.btnAcept.Name = "btnAcept";
             this.btnAcept.Size = new System.Drawing.Size(85, 25);
@@ -49,6 +50,7 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Location = new System.Drawing.Point(187, 224);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(85, 25);
@@ -77,6 +79,15 @@
             this.tabPage1.Text = "Puerto Serial";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // cbxPortNames
+            // 
+            this.cbxPortNames.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxPortNames.FormattingEnabled = true;
+            this.cbxPortNames.Location = new System.Drawing.Point(111, 72);
+            this.cbxPortNames.Name = "cbxPortNames";
+            this.cbxPortNames.Size = new System.Drawing.Size(121, 21);
+            this.cbxPortNames.TabIndex = 2;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -85,21 +96,6 @@
             this.label1.Size = new System.Drawing.Size(97, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Nombre del puerto:";
-            // 
-            // cbxPortNames
-            // 
-            this.cbxPortNames.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxPortNames.FormattingEnabled = true;
-            this.cbxPortNames.Items.AddRange(new object[] {
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "COM5"});
-            this.cbxPortNames.Location = new System.Drawing.Point(111, 72);
-            this.cbxPortNames.Name = "cbxPortNames";
-            this.cbxPortNames.Size = new System.Drawing.Size(121, 21);
-            this.cbxPortNames.TabIndex = 2;
             // 
             // SettingsForm
             // 

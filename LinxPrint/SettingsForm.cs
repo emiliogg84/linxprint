@@ -4,10 +4,24 @@
 
 namespace LinxPrint
 {
+    using System;
+    using System.IO.Ports;
     using System.Windows.Forms;
 
     public partial class SettingsForm : Form
     {
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            string[] ports = SerialPort.GetPortNames();
+
+            cbxPortNames.Items.AddRange(ports);
+            
+            if (cbxPortNames.Items.Count > 0)
+                cbxPortNames.SelectedIndex = 1;
+        }
+
         public SettingsForm()
         {
             InitializeComponent();
