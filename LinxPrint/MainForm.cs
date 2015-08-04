@@ -6,6 +6,7 @@ namespace LinxPrint
 {
     using System;
     using System.IO;
+    using System.Configuration;
     using System.Windows.Forms;
     using LinxPrint.Model;
     using LinxPrint.Printers;
@@ -19,6 +20,8 @@ namespace LinxPrint
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            _portName = ConfigurationManager.AppSettings.Get("ComPortName");
 
             dateToolStripTextBox.Text = DateTime.Now.ToShortDateString();
 
@@ -68,6 +71,7 @@ namespace LinxPrint
         {
             ILinxPrinter printer = new SerialPortPrinter(_portName);
 
+            var printed = true;
             var items = bindingSource.List;
 
             this.Cursor = Cursors.WaitCursor;
@@ -78,12 +82,17 @@ namespace LinxPrint
                 foreach (var item in items)
                 {
                     var typedItem = item as Item;
-                    printer.Print(typedItem.Code);
+                    if (printer.Print(typedItem.Code))
+                    {
+                        //Set post print values
+                        typedItem.Printed = true;
+                        typedItem.PrintedOn = DateTime.Now;
+                        _itemsManager.UpdateItem(typedItem);
+                    }
+                    else
+                        printed = false;
+
                     Application.DoEvents(); //Simulate asynchronous processing
-                    //Set post print values
-                    typedItem.Printed = true;
-                    typedItem.PrintedOn = DateTime.Now;
-                    _itemsManager.UpdateItem(typedItem);
                 }
             }
             catch (Exception ex)
@@ -97,6 +106,9 @@ namespace LinxPrint
             }
 
             bindingSource.ResetBindings(false);
+
+            if (!printed)
+                MessageBox.Show("Algunos códigos no se imprimieron debido a problemas con el dispositivo, revise la lista!!");
         }
 
         private void HidePrintingProgress()
@@ -141,7 +153,7 @@ namespace LinxPrint
         {
             List<string> codes = new List<string>();
 
-            using (var openFileDlg = new OpenFileDialog())
+            using (var openFileDlg = new OpenFileDialog() { Title = "Importar", Filter = "TXT|*.txt"})
             {
                 if (openFileDlg.ShowDialog() == DialogResult.OK)
                 {
@@ -208,6 +220,7 @@ namespace LinxPrint
 
             ILinxPrinter printer = new SerialPortPrinter(_portName);
 
+            var printed = true;
             var items = bindingSource.List;
 
             this.Cursor = Cursors.WaitCursor;
@@ -218,12 +231,17 @@ namespace LinxPrint
                 foreach (DataGridViewRow selectedRow in selectedRows)
                 {
                     var typedItem = selectedRow.DataBoundItem as Item;
-                    printer.Print(typedItem.Code);
+                    if (printer.Print(typedItem.Code))
+                    {
+                        //Set post print values
+                        typedItem.Printed = true;
+                        typedItem.PrintedOn = DateTime.Now;
+                        _itemsManager.UpdateItem(typedItem);
+                    }
+                    else
+                        printed = false;
+
                     Application.DoEvents(); //Simulate asynchronous processing
-                    //Set post print values
-                    typedItem.Printed = true;
-                    typedItem.PrintedOn = DateTime.Now;
-                    _itemsManager.UpdateItem(typedItem);
                 }
             }
             catch (Exception ex)
@@ -237,12 +255,26 @@ namespace LinxPrint
             }
 
             bindingSource.ResetBindings(false);
+
+            if (!printed)
+                MessageBox.Show("Algunos códigos no se imprimieron debido a problemas con el dispositivo, revise la lista!!");
         }
 
         private void serialPortConfigToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(string.Format("PortName: {0} \n BaudRate: 9600\n Parity: None\n DataBits: 8\n StopBits: One\n Handshake: None", _portName),
                 "SerialPort");
+        }
+
+        private void editModeToolStripButton_Click(object sender, EventArgs e)
+        {
+            editModeToolStripMenuItem.PerformClick();
+        }
+
+        private void editModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dataGridView.ReadOnly = !editModeToolStripMenuItem.Checked;
+            editModeToolStripButton.Checked = editModeToolStripMenuItem.Checked;
         }
     }
 }

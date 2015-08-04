@@ -124,6 +124,7 @@
             this.editModeToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.editModeToolStripMenuItem.Text = "Modo de edición";
             this.editModeToolStripMenuItem.CheckedChanged += new System.EventHandler(this.editModeToolStripMenuItem_CheckedChanged);
+            this.editModeToolStripMenuItem.Click += new System.EventHandler(this.editModeToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
@@ -222,7 +223,7 @@
             this.editModeToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.editModeToolStripButton.Text = "Modo de edición";
             this.editModeToolStripButton.ToolTipText = "Modo de edición";
-            this.editModeToolStripButton.Click += new System.EventHandler(this.editModeToolStripMenuItem_CheckedChanged);
+            this.editModeToolStripButton.Click += new System.EventHandler(this.editModeToolStripButton_Click);
             // 
             // deleteToolStripButton
             // 
@@ -332,7 +333,6 @@
             this.colPrintedOn});
             this.dataGridView.DataSource = this.bindingSource;
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnF2;
             this.dataGridView.Location = new System.Drawing.Point(0, 49);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;

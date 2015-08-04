@@ -6,6 +6,6 @@ namespace LinxPrint.Printers
 {
     public interface ILinxPrinter
     {
-        void Print(string text);
+        bool Print(string text);
     }
 }
