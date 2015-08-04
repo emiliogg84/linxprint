@@ -15,9 +15,7 @@ namespace LinxPrint
         {
             base.OnLoad(e);
 
-            //string[] ports = SerialPort.GetPortNames();
-
-            string[] ports = new string[] { "COM1", "COM2" };
+            string[] ports = SerialPort.GetPortNames();
 
             cbxPortNames.Items.AddRange(ports);
 
