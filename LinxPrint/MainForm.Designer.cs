@@ -36,7 +36,10 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripSubMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deletePrintedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.printAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.printSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,6 +56,8 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.dateToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.stateToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.portNameToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -112,7 +117,7 @@
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.editModeToolStripMenuItem,
-            this.deleteToolStripMenuItem});
+            this.deleteToolStripSubMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
             this.editToolStripMenuItem.Text = "&Edición";
@@ -126,12 +131,36 @@
             this.editModeToolStripMenuItem.CheckedChanged += new System.EventHandler(this.editModeToolStripMenuItem_CheckedChanged);
             this.editModeToolStripMenuItem.Click += new System.EventHandler(this.editModeToolStripMenuItem_Click);
             // 
+            // deleteToolStripSubMenuItem
+            // 
+            this.deleteToolStripSubMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteToolStripMenuItem,
+            this.deletePrintedToolStripMenuItem,
+            this.deleteAllToolStripMenuItem});
+            this.deleteToolStripSubMenuItem.Name = "deleteToolStripSubMenuItem";
+            this.deleteToolStripSubMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.deleteToolStripSubMenuItem.Text = "Eliminar";
+            // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.deleteToolStripMenuItem.Text = "Eliminar";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // deletePrintedToolStripMenuItem
+            // 
+            this.deletePrintedToolStripMenuItem.Name = "deletePrintedToolStripMenuItem";
+            this.deletePrintedToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.deletePrintedToolStripMenuItem.Text = "Eliminar impresos";
+            this.deletePrintedToolStripMenuItem.Click += new System.EventHandler(this.deletePrintedToolStripMenuItem_Click);
+            // 
+            // deleteAllToolStripMenuItem
+            // 
+            this.deleteAllToolStripMenuItem.Name = "deleteAllToolStripMenuItem";
+            this.deleteAllToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.deleteAllToolStripMenuItem.Text = "Eliminar todos";
+            this.deleteAllToolStripMenuItem.Click += new System.EventHandler(this.deleteAllToolStripMenuItem_Click);
             // 
             // printToolStripMenuItem
             // 
@@ -190,7 +219,9 @@
             this.printToolStripButton,
             this.toolStripSeparator3,
             this.toolStripLabel1,
-            this.dateToolStripTextBox});
+            this.dateToolStripTextBox,
+            this.toolStripLabel2,
+            this.stateToolStripComboBox});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(598, 25);
@@ -269,6 +300,23 @@
             this.dateToolStripTextBox.Size = new System.Drawing.Size(100, 25);
             this.dateToolStripTextBox.TextChanged += new System.EventHandler(this.dateToolStripTextBox_TextChanged);
             // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(45, 22);
+            this.toolStripLabel2.Text = "Estado:";
+            // 
+            // stateToolStripComboBox
+            // 
+            this.stateToolStripComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.stateToolStripComboBox.Items.AddRange(new object[] {
+            "Todos",
+            "Impreso",
+            "No Impreso"});
+            this.stateToolStripComboBox.Name = "stateToolStripComboBox";
+            this.stateToolStripComboBox.Size = new System.Drawing.Size(121, 25);
+            this.stateToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.stateToolStripComboBox_SelectedIndexChanged);
+            // 
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -336,6 +384,7 @@
             this.dataGridView.Location = new System.Drawing.Point(0, 49);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
+            this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView.Size = new System.Drawing.Size(598, 313);
             this.dataGridView.TabIndex = 3;
             this.dataGridView.RowValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_RowValidated);
@@ -409,7 +458,6 @@
         private System.Windows.Forms.BindingSource bindingSource;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton importToolStripButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton editModeToolStripButton;
@@ -432,5 +480,11 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn colPrinted;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedOn;
         private System.Windows.Forms.ToolStripMenuItem serialPortConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripComboBox stateToolStripComboBox;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripSubMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deletePrintedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
     }
 }

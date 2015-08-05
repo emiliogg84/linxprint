@@ -74,5 +74,10 @@ namespace LinxPrint.Log
                 AssemblyName name = asm.GetName();
             }
         }
+
+        public void LogInfo(string message)
+        {
+            _log.Info(message);
+        }
     }
 }

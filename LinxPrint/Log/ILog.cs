@@ -24,5 +24,6 @@ namespace LinxPrint.Log
         void LogError(string message, Exception exception, params object[] args);
 
         void LogError(Exception exception);
+        void LogInfo(string message);
     }
 }

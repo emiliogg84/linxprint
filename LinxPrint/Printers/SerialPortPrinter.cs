@@ -4,14 +4,15 @@
 
 namespace LinxPrint.Printers
 {
-    using System;
     using System.Threading;
     using System.IO.Ports;
+    using LinxPrint.Log;
 
     public class SerialPortPrinter : ILinxPrinter
     {
         private readonly SerialPort _serialPort;
         private bool _printed = false;
+        private string _currentText;
 
         public SerialPortPrinter(string portName)
         {
@@ -26,8 +27,8 @@ namespace LinxPrint.Printers
             _serialPort.StopBits = StopBits.One;
             _serialPort.Handshake = Handshake.None;
             // Set the read/write timeouts
-            _serialPort.ReadTimeout = 500;
-            _serialPort.WriteTimeout = 500;
+            _serialPort.ReadTimeout = -1;
+            _serialPort.WriteTimeout = -1;
 
             // Event handling
             _serialPort.DataReceived += DataReceived;
@@ -38,16 +39,22 @@ namespace LinxPrint.Printers
         {
             if (e.EventType == SerialData.Eof) return;
             var received = _serialPort.ReadExisting();
-            if (received.Contains(1.ToString())) _printed = true;
+            if (received.Contains(1.ToString()))
+            {
+                _printed = true;
+                LogFactory.CreateLog().LogInfo(string.Format("Successfully printed text: {0}", _currentText));
+            }
         }
 
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             if (_serialPort.IsOpen) _serialPort.Close();
+            LogFactory.CreateLog().LogError(string.Format("Error received for text: {0}", _currentText), null, null);
         }
 
         public bool Print(string text)
         {
+            _currentText = text;
             _printed = false;
             _serialPort.Open();
 
@@ -55,12 +62,9 @@ namespace LinxPrint.Printers
             {
                 _serialPort.WriteLine(text);
 
-                var attempt = 0;
-
-                while (!_printed && attempt < 5)
+                while (!_printed && _serialPort.IsOpen)
                 {
                     Thread.Sleep(100);
-                    attempt++;
                 }
             }
             finally

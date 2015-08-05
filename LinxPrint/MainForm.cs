@@ -6,16 +6,48 @@ namespace LinxPrint
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Configuration;
     using System.Windows.Forms;
     using LinxPrint.Model;
     using LinxPrint.Printers;
+    using LinxPrint.Log;
     using System.Collections.Generic;
 
     public partial class MainForm : Form
     {
         private readonly ItemsManager _itemsManager;
         private string _portName = "COM1";
+        private bool _loading = false; //Control the grid states
+
+        private void ShowItemCodes(DateTime date, int state)
+        {
+            _loading = true;
+
+            IEnumerable<Item> items = null;
+
+            switch (state)
+            {
+                case 1:
+                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
+                    i.Created.Month == date.Month && i.Created.Year == date.Year && i.Printed).ToList();
+                    break;
+
+                case 2:
+                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
+                    i.Created.Month == date.Month && i.Created.Year == date.Year && !i.Printed).ToList();
+                    break;
+
+                default:
+                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
+                    i.Created.Month == date.Month && i.Created.Year == date.Year).ToList();
+                    break;
+            }
+
+            bindingSource.DataSource = null;
+            bindingSource.DataSource = items;
+            _loading = false;
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -24,6 +56,7 @@ namespace LinxPrint
             _portName = ConfigurationManager.AppSettings.Get("ComPortName");
 
             dateToolStripTextBox.Text = DateTime.Now.ToShortDateString();
+            stateToolStripComboBox.SelectedIndex = 0;
 
             UpdateComponentStatus();
         }
@@ -56,15 +89,8 @@ namespace LinxPrint
 
             if (DateTime.TryParse(dateStr, out date))
             {
-                var items = _itemsManager.GetByCreated(date);
-                bindingSource.DataSource = items;
-                bindingSource.ResetBindings(false);
+                ShowItemCodes(date, stateToolStripComboBox.SelectedIndex);
             }
-        }
-
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            bindingSource.RemoveCurrent();
         }
 
         private void printAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -120,7 +146,7 @@ namespace LinxPrint
 
         private void ShowPrintingProgress()
         {
-            progressLabelToolStrip.Text = "Imprimiendo...";
+            progressLabelToolStrip.Text = "Imprimiendo... espere...";
             progressLabelToolStrip.Visible = true;
             progressBarToolStrip.Enabled = true;
             progressBarToolStrip.Visible = true;
@@ -173,6 +199,13 @@ namespace LinxPrint
                             dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("El archivo de importación no está en un formato valido o contiene códigos duplicados",
+                            this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        LogFactory.CreateLog().LogError("Import codes raise and exception", ex);
+                    }
                     finally
                     {
                         this.Cursor = Cursors.Default;
@@ -191,7 +224,7 @@ namespace LinxPrint
 
         private void ShowImportingProgress()
         {
-            progressLabelToolStrip.Text = "Importando...";
+            progressLabelToolStrip.Text = "Importando... espere...";
             progressLabelToolStrip.Visible = true;
             progressBarToolStrip.Enabled = true;
             progressBarToolStrip.Visible = true;
@@ -204,14 +237,24 @@ namespace LinxPrint
 
         private void dataGridView_RowValidated(object sender, DataGridViewCellEventArgs e)
         {
+            if (_loading) return;
+            if (!editModeToolStripButton.Checked) return;
+
             var item = dataGridView.Rows[e.RowIndex].DataBoundItem as Item;
 
             if (item == null) return;
 
-            if (item.Id <= 0)
-                _itemsManager.AddItem(item);
-            else
-                _itemsManager.UpdateItem(item);
+            try
+            {
+                if (item.Id <= 0)
+                    _itemsManager.AddItem(item);
+                else
+                    _itemsManager.UpdateItem(item);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Ha ocurrido un error mientras se intentaba salvar los cambios\n\n", ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void printSelectionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -275,6 +318,87 @@ namespace LinxPrint
         {
             dataGridView.ReadOnly = !editModeToolStripMenuItem.Checked;
             editModeToolStripButton.Checked = editModeToolStripMenuItem.Checked;
+        }
+
+        private void deleteAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("¿Eliminar todos los códigos?", this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+                return;
+
+            this.Cursor = Cursors.WaitCursor;
+            ShowDeletingProgress();
+
+            try
+            {
+                _itemsManager.DeleteAllItems();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                HideDeletingProgress();
+            }
+
+            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
+        }
+
+        private void HideDeletingProgress()
+        {
+            progressBarToolStrip.Enabled = false;
+            progressBarToolStrip.Visible = false;
+            progressLabelToolStrip.Visible = false;
+        }
+
+        private void ShowDeletingProgress()
+        {
+            progressLabelToolStrip.Text = "Eliminando códigos... espere...";
+            progressLabelToolStrip.Visible = true;
+            progressBarToolStrip.Enabled = true;
+            progressBarToolStrip.Visible = true;
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bindingSource.RemoveCurrent();
+        }
+
+        private void deletePrintedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("¿Eliminar los códigos impresos?", this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+                return;
+
+            this.Cursor = Cursors.WaitCursor;
+            ShowDeletingProgress();
+
+            try
+            {
+                _itemsManager.DeletePrinted();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                HideDeletingProgress();
+            }
+
+            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
+        }
+
+        private void stateToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string dateStr = dateToolStripTextBox.Text;
+            DateTime date = DateTime.Now;
+
+            if (DateTime.TryParse(dateStr, out date))
+            {
+                ShowItemCodes(date, stateToolStripComboBox.SelectedIndex);
+            }
         }
     }
 }

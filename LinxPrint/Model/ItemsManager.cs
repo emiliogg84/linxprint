@@ -11,13 +11,11 @@ namespace LinxPrint.Model
 
     public class ItemsManager
     {
-        //private readonly ICollection<Item> _items;
         private readonly DataContext _dataContext;
         private readonly DbSet<Item> _items;
 
         public ItemsManager()
         {
-            //_items = new List<Item>();
             _dataContext = new DataContext();
             _items = _dataContext.Items;
         }
@@ -43,13 +41,27 @@ namespace LinxPrint.Model
 
         public void UpdateItem(Item item)
         {
-            _dataContext.Entry<Item>(item).State = EntityState.Modified;
+            //_dataContext.Entry<Item>(item).State = EntityState.Modified;
+            if (_dataContext.ChangeTracker.HasChanges())
             _dataContext.SaveChanges();
         }
 
         public void DeleteItem(Item item)
         {
             _items.Remove(item);
+            _dataContext.SaveChanges();
+        }
+
+        public void DeletePrinted()
+        {
+            var itemsPrinted = _items.Where(i => i.Printed).AsEnumerable();
+            _items.RemoveRange(itemsPrinted);
+            _dataContext.SaveChanges();
+        }
+
+        public void DeleteAllItems()
+        {
+            _items.RemoveRange(_items.AsEnumerable());
             _dataContext.SaveChanges();
         }
 
@@ -63,6 +75,11 @@ namespace LinxPrint.Model
             return _items.Where(i => i.Created.Day == date.Day &&
             i.Created.Month == date.Month &&
             i.Created.Year == date.Year).ToList();
+        }
+
+        public IQueryable<Item> Get()
+        {
+            return _items;
         }
     }
 }
