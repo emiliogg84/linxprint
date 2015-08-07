@@ -20,28 +20,48 @@ namespace LinxPrint
         private string _portName = "COM1";
         private bool _loading = false; //Control the grid states
 
-        private void ShowItemCodes(DateTime date, int state)
+        private void ShowItemCodes(DateTime? date, int state)
         {
             _loading = true;
 
             IEnumerable<Item> items = null;
 
-            switch (state)
+            if (!date.HasValue)
             {
-                case 1:
-                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
-                    i.Created.Month == date.Month && i.Created.Year == date.Year && i.Printed).ToList();
-                    break;
+                switch (state)
+                {
+                    case 1:
+                        items = _itemsManager.Get().Where(i => i.Printed).ToList();
+                        break;
 
-                case 2:
-                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
-                    i.Created.Month == date.Month && i.Created.Year == date.Year && !i.Printed).ToList();
-                    break;
+                    case 2:
+                        items = _itemsManager.Get().Where(i => !i.Printed).ToList();
+                        break;
 
-                default:
-                    items = _itemsManager.Get().Where(i => i.Created.Day == date.Day &&
-                    i.Created.Month == date.Month && i.Created.Year == date.Year).ToList();
-                    break;
+                    default:
+                        items = _itemsManager.GetAll();
+                        break;
+                }
+            }
+            else
+            {
+                switch (state)
+                {
+                    case 1:
+                        items = _itemsManager.Get().Where(i => i.Created.Day == date.Value.Day &&
+                        i.Created.Month == date.Value.Month && i.Created.Year == date.Value.Year && i.Printed).ToList();
+                        break;
+
+                    case 2:
+                        items = _itemsManager.Get().Where(i => i.Created.Day == date.Value.Day &&
+                        i.Created.Month == date.Value.Month && i.Created.Year == date.Value.Year && !i.Printed).ToList();
+                        break;
+
+                    default:
+                        items = _itemsManager.Get().Where(i => i.Created.Day == date.Value.Day &&
+                        i.Created.Month == date.Value.Month && i.Created.Year == date.Value.Year).ToList();
+                        break;
+                }
             }
 
             bindingSource.DataSource = null;
@@ -55,7 +75,6 @@ namespace LinxPrint
 
             _portName = ConfigurationManager.AppSettings.Get("ComPortName");
 
-            dateToolStripTextBox.Text = DateTime.Now.ToShortDateString();
             stateToolStripComboBox.SelectedIndex = 0;
 
             UpdateComponentStatus();
@@ -90,6 +109,10 @@ namespace LinxPrint
             if (DateTime.TryParse(dateStr, out date))
             {
                 ShowItemCodes(date, stateToolStripComboBox.SelectedIndex);
+            }
+            else
+            {
+                ShowItemCodes(null, stateToolStripComboBox.SelectedIndex);
             }
         }
 
@@ -398,6 +421,10 @@ namespace LinxPrint
             if (DateTime.TryParse(dateStr, out date))
             {
                 ShowItemCodes(date, stateToolStripComboBox.SelectedIndex);
+            }
+            else
+            {
+                ShowItemCodes(null, stateToolStripComboBox.SelectedIndex);
             }
         }
     }

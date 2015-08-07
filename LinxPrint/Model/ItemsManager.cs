@@ -67,7 +67,7 @@ namespace LinxPrint.Model
 
         public IEnumerable<Item> GetAll()
         {
-            return _items;
+            return _items.ToList();
         }
 
         public IEnumerable<Item> GetByCreated(DateTime date)
