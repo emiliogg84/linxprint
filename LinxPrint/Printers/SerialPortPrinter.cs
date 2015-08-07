@@ -4,6 +4,7 @@
 
 namespace LinxPrint.Printers
 {
+    using System;
     using System.Threading;
     using System.IO.Ports;
     using LinxPrint.Log;
@@ -49,30 +50,44 @@ namespace LinxPrint.Printers
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             if (_serialPort.IsOpen) _serialPort.Close();
-            LogFactory.CreateLog().LogError(string.Format("Error received for text: {0}", _currentText), null, null);
+            LogFactory.CreateLog().LogError(string.Format("Error received for text: {0}", _currentText), null);
         }
 
         public bool Print(string text)
         {
+            if (!_serialPort.IsOpen) return false;
+
             _currentText = text;
             _printed = false;
-            _serialPort.Open();
 
-            try
-            {
-                _serialPort.WriteLine(text);
+            _serialPort.WriteLine(text);
 
-                while (!_printed && _serialPort.IsOpen)
-                {
-                    Thread.Sleep(100);
-                }
-            }
-            finally
+            while (!_printed && _serialPort.IsOpen)
             {
-                if (_serialPort.IsOpen) _serialPort.Close();
+                Thread.Sleep(100);
             }
 
             return _printed;
+        }
+
+        public bool Connect()
+        {
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (Exception ex)
+            {
+                LogFactory.CreateLog().LogError("Invoke to Connect throw an exception", ex);
+            }
+
+            return _serialPort.IsOpen;
+        }
+
+        public void Disconect()
+        {
+            if (_serialPort.IsOpen)
+                _serialPort.Close();
         }
     }
 }

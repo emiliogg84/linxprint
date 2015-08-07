@@ -120,6 +120,12 @@ namespace LinxPrint
         {
             ILinxPrinter printer = new SerialPortPrinter(_portName);
 
+            if (!printer.Connect())
+            {
+                MessageBox.Show("Ocurrio un problema cuando se intentaba conectar con el dispositivo", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var printed = true;
             var items = bindingSource.List;
 
@@ -150,6 +156,7 @@ namespace LinxPrint
             }
             finally
             {
+                printer.Disconect();
                 this.Cursor = Cursors.Default;
                 HidePrintingProgress();
             }
@@ -286,6 +293,12 @@ namespace LinxPrint
 
             ILinxPrinter printer = new SerialPortPrinter(_portName);
 
+            if (!printer.Connect())
+            {
+                MessageBox.Show("Ocurrio un problema cuando se intentaba conectar con el dispositivo", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var printed = true;
             var items = bindingSource.List;
 
@@ -316,6 +329,7 @@ namespace LinxPrint
             }
             finally
             {
+                printer.Disconect();
                 this.Cursor = Cursors.Default;
                 HidePrintingProgress();
             }

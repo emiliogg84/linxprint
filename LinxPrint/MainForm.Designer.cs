@@ -296,8 +296,10 @@
             // 
             // dateToolStripTextBox
             // 
+            this.dateToolStripTextBox.BackColor = System.Drawing.SystemColors.Info;
             this.dateToolStripTextBox.Name = "dateToolStripTextBox";
             this.dateToolStripTextBox.Size = new System.Drawing.Size(100, 25);
+            this.dateToolStripTextBox.ToolTipText = "Seleccione una fecha para ver los pincodes importados ese día";
             this.dateToolStripTextBox.TextChanged += new System.EventHandler(this.dateToolStripTextBox_TextChanged);
             // 
             // toolStripLabel2
@@ -308,6 +310,7 @@
             // 
             // stateToolStripComboBox
             // 
+            this.stateToolStripComboBox.BackColor = System.Drawing.SystemColors.Info;
             this.stateToolStripComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.stateToolStripComboBox.Items.AddRange(new object[] {
             "Todos",
@@ -315,6 +318,7 @@
             "No Impreso"});
             this.stateToolStripComboBox.Name = "stateToolStripComboBox";
             this.stateToolStripComboBox.Size = new System.Drawing.Size(121, 25);
+            this.stateToolStripComboBox.ToolTipText = "Filtra los pincodes en función de su estado";
             this.stateToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.stateToolStripComboBox_SelectedIndexChanged);
             // 
             // statusStrip
