@@ -46,6 +46,12 @@ namespace LinxPrint.Model
             _dataContext.SaveChanges();
         }
 
+        public void UpdateAll()
+        {
+            if (_dataContext.ChangeTracker.HasChanges())
+                _dataContext.SaveChanges();
+        }
+
         public void DeleteItem(Item item)
         {
             _items.Remove(item);

@@ -118,53 +118,23 @@ namespace LinxPrint
 
         private void printAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ILinxPrinter printer = new SerialPortPrinter(_portName);
-
-            if (!printer.Connect())
-            {
-                MessageBox.Show("Ocurrio un problema cuando se intentaba conectar con el dispositivo", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            var printed = true;
-            var items = bindingSource.List;
-
-            this.Cursor = Cursors.WaitCursor;
+            var items = _itemsManager.Get().ToList();
             ShowPrintingProgress();
 
             try
             {
-                foreach (var item in items)
+                using (var printForm = new PrintProgressForm(_portName, items))
                 {
-                    var typedItem = item as Item;
-                    if (printer.Print(typedItem.Code))
-                    {
-                        //Set post print values
-                        typedItem.Printed = true;
-                        typedItem.PrintedOn = DateTime.Now;
-                        _itemsManager.UpdateItem(typedItem);
-                    }
-                    else
-                        printed = false;
-
-                    Application.DoEvents(); //Simulate asynchronous processing
+                    printForm.ShowDialog();
+                    _itemsManager.UpdateAll();
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
             }
             finally
             {
-                printer.Disconect();
-                this.Cursor = Cursors.Default;
                 HidePrintingProgress();
             }
 
             bindingSource.ResetBindings(false);
-
-            if (!printed)
-                MessageBox.Show("Algunos códigos no se imprimieron debido a problemas con el dispositivo, revise la lista!!");
         }
 
         private void HidePrintingProgress()
@@ -176,7 +146,7 @@ namespace LinxPrint
 
         private void ShowPrintingProgress()
         {
-            progressLabelToolStrip.Text = "Imprimiendo... espere...";
+            progressLabelToolStrip.Text = "Imprimiendo...";
             progressLabelToolStrip.Visible = true;
             progressBarToolStrip.Enabled = true;
             progressBarToolStrip.Visible = true;
@@ -198,6 +168,13 @@ namespace LinxPrint
         private void UpdateComponentStatus()
         {
             portNameToolStrip.Text = string.Format("Puerto: {0}", _portName);
+            printAllToolStripMenuItem.Enabled = bindingSource.List != null && bindingSource.List.Count > 0;
+            printSelectionToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
+            deleteAllToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
+            deletePrintedToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
+            printToolStripButton.Enabled = printAllToolStripMenuItem.Enabled;
+            deleteToolStripButton.Enabled = printAllToolStripMenuItem.Enabled;
+
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -290,19 +267,7 @@ namespace LinxPrint
         private void printSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var selectedRows = dataGridView.SelectedRows;
-
-            ILinxPrinter printer = new SerialPortPrinter(_portName);
-
-            if (!printer.Connect())
-            {
-                MessageBox.Show("Ocurrio un problema cuando se intentaba conectar con el dispositivo", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            var printed = true;
-            var items = bindingSource.List;
-
-            this.Cursor = Cursors.WaitCursor;
+            var items = new List<Item>(selectedRows.Count);
             ShowPrintingProgress();
 
             try
@@ -310,34 +275,21 @@ namespace LinxPrint
                 foreach (DataGridViewRow selectedRow in selectedRows)
                 {
                     var typedItem = selectedRow.DataBoundItem as Item;
-                    if (printer.Print(typedItem.Code))
-                    {
-                        //Set post print values
-                        typedItem.Printed = true;
-                        typedItem.PrintedOn = DateTime.Now;
-                        _itemsManager.UpdateItem(typedItem);
-                    }
-                    else
-                        printed = false;
-
-                    Application.DoEvents(); //Simulate asynchronous processing
+                    items.Add(typedItem);
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, string.Format("{0} - ERROR!", this.Text));
+
+                using (var printForm = new PrintProgressForm(_portName, items))
+                {
+                    printForm.ShowDialog();
+                    _itemsManager.UpdateAll();
+                }
             }
             finally
             {
-                printer.Disconect();
-                this.Cursor = Cursors.Default;
                 HidePrintingProgress();
             }
 
             bindingSource.ResetBindings(false);
-
-            if (!printed)
-                MessageBox.Show("Algunos códigos no se imprimieron debido a problemas con el dispositivo, revise la lista!!");
         }
 
         private void serialPortConfigToolStripMenuItem_Click(object sender, EventArgs e)
@@ -440,6 +392,40 @@ namespace LinxPrint
             {
                 ShowItemCodes(null, stateToolStripComboBox.SelectedIndex);
             }
+        }
+
+        private void searchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var code = string.Empty;
+
+            using (var form = new SearchForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                    code = form.Result;
+                else
+                    return;
+            }
+
+            IEnumerable<Item> items = _itemsManager.Get().Where(i => i.Code.StartsWith(code)).ToList();
+
+            if (items == null || items.Count() == 0)
+            {
+                MessageBox.Show("La busqueda no devolvio ninguna coincidencia", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            bindingSource.DataSource = null;
+            bindingSource.DataSource = items;
+        }
+
+        private void menuStrip_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuStrip_MenuActivate(object sender, EventArgs e)
+        {
+            UpdateComponentStatus();
         }
     }
 }
