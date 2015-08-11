@@ -118,7 +118,16 @@ namespace LinxPrint
 
         private void printAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var items = _itemsManager.Get().ToList();
+            var items = _itemsManager.Get().Where(i => !i.Printed).ToList();
+
+            if (items.Count == 0)
+            {
+                MessageBox.Show("Todos los códigos han sido impreso!",
+                            this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return;
+            }
+
             ShowPrintingProgress();
 
             try
@@ -139,8 +148,6 @@ namespace LinxPrint
 
         private void HidePrintingProgress()
         {
-            progressBarToolStrip.Enabled = false;
-            progressBarToolStrip.Visible = false;
             progressLabelToolStrip.Visible = false;
         }
 
@@ -148,8 +155,6 @@ namespace LinxPrint
         {
             progressLabelToolStrip.Text = "Imprimiendo...";
             progressLabelToolStrip.Visible = true;
-            progressBarToolStrip.Enabled = true;
-            progressBarToolStrip.Visible = true;
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -275,7 +280,16 @@ namespace LinxPrint
                 foreach (DataGridViewRow selectedRow in selectedRows)
                 {
                     var typedItem = selectedRow.DataBoundItem as Item;
-                    items.Add(typedItem);
+                    if (!typedItem.Printed)
+                        items.Add(typedItem);
+                }
+
+                if (items.Count == 0)
+                {
+                    MessageBox.Show("Todos los códigos han sido impreso!",
+                                this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    return;
                 }
 
                 using (var printForm = new PrintProgressForm(_portName, items))
@@ -352,6 +366,7 @@ namespace LinxPrint
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bindingSource.RemoveCurrent();
+            _itemsManager.UpdateAll();
         }
 
         private void deletePrintedToolStripMenuItem_Click(object sender, EventArgs e)

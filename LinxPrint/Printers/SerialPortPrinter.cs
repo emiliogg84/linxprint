@@ -6,6 +6,7 @@ namespace LinxPrint.Printers
 {
     using System;
     using System.Threading;
+    using System.Windows.Forms;
     using System.IO.Ports;
     using LinxPrint.Log;
 
@@ -43,14 +44,14 @@ namespace LinxPrint.Printers
             if (received.Contains(1.ToString()))
             {
                 _printed = true;
-                LogFactory.CreateLog().LogInfo(string.Format("Successfully printed text: {0}", _currentText));
+                LogFactory.CreateLog().LogInfo(string.Format("Successfully printed code: {0}", _currentText));
             }
         }
 
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             if (_serialPort.IsOpen) _serialPort.Close();
-            LogFactory.CreateLog().LogError(string.Format("Error received for text: {0}", _currentText), null);
+            LogFactory.CreateLog().LogError(string.Format("Error received for code: {0}", _currentText), null);
         }
 
         public bool Print(string text)
@@ -65,6 +66,7 @@ namespace LinxPrint.Printers
             while (!_printed && _serialPort.IsOpen)
             {
                 Thread.Sleep(100);
+                Application.DoEvents();
             }
 
             return _printed;
