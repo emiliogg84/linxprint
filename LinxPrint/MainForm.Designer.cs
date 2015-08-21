@@ -56,6 +56,8 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.printToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.searchToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.dateToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
@@ -63,17 +65,18 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.portNameToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.totalCodesToolStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.printedCodesToolStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressLabelToolStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBarToolStrip = new System.Windows.Forms.ToolStripProgressBar();
             this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.colCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRecNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPrinted = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colPrintedOn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.searchToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.colPrintedDetails = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -90,11 +93,10 @@
             this.toolsToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(598, 24);
+            this.menuStrip.Size = new System.Drawing.Size(762, 24);
             this.menuStrip.TabIndex = 0;
             this.menuStrip.Text = "menuStrip1";
             this.menuStrip.MenuActivate += new System.EventHandler(this.menuStrip_MenuActivate);
-            this.menuStrip.Enter += new System.EventHandler(this.menuStrip_Enter);
             // 
             // fileToolStripMenuItem
             // 
@@ -246,7 +248,7 @@
             this.stateToolStripComboBox});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(598, 25);
+            this.toolStrip.Size = new System.Drawing.Size(762, 25);
             this.toolStrip.TabIndex = 1;
             this.toolStrip.Text = "toolStrip1";
             // 
@@ -310,6 +312,21 @@
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
             // 
+            // searchToolStripButton
+            // 
+            this.searchToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.searchToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("searchToolStripButton.Image")));
+            this.searchToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.searchToolStripButton.Name = "searchToolStripButton";
+            this.searchToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.searchToolStripButton.Text = "toolStripButton1";
+            this.searchToolStripButton.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
@@ -348,13 +365,14 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.portNameToolStrip,
             this.toolStripStatusLabel4,
-            this.toolStripStatusLabel1,
+            this.totalCodesToolStripLabel,
             this.toolStripStatusLabel3,
+            this.printedCodesToolStripLabel,
             this.progressLabelToolStrip,
             this.progressBarToolStrip});
             this.statusStrip.Location = new System.Drawing.Point(0, 362);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(598, 22);
+            this.statusStrip.Size = new System.Drawing.Size(762, 22);
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -370,11 +388,11 @@
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(10, 17);
             // 
-            // toolStripStatusLabel1
+            // totalCodesToolStripLabel
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(67, 17);
-            this.toolStripStatusLabel1.Text = "Registros: 0";
+            this.totalCodesToolStripLabel.Name = "totalCodesToolStripLabel";
+            this.totalCodesToolStripLabel.Size = new System.Drawing.Size(106, 17);
+            this.totalCodesToolStripLabel.Text = "Total de códigos: 0";
             // 
             // toolStripStatusLabel3
             // 
@@ -382,8 +400,15 @@
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(10, 17);
             // 
+            // printedCodesToolStripLabel
+            // 
+            this.printedCodesToolStripLabel.Name = "printedCodesToolStripLabel";
+            this.printedCodesToolStripLabel.Size = new System.Drawing.Size(114, 17);
+            this.printedCodesToolStripLabel.Text = "Códigos impresos: 0";
+            // 
             // progressLabelToolStrip
             // 
+            this.progressLabelToolStrip.ForeColor = System.Drawing.Color.DarkViolet;
             this.progressLabelToolStrip.Name = "progressLabelToolStrip";
             this.progressLabelToolStrip.Size = new System.Drawing.Size(85, 17);
             this.progressLabelToolStrip.Text = "Imprimiendo...";
@@ -403,19 +428,25 @@
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colCode,
+            this.colRecNo,
             this.colPrinted,
-            this.colPrintedOn});
+            this.colPrintedOn,
+            this.colPrintedDetails});
             this.dataGridView.DataSource = this.bindingSource;
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView.Location = new System.Drawing.Point(0, 49);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView.Size = new System.Drawing.Size(598, 313);
+            this.dataGridView.Size = new System.Drawing.Size(762, 313);
             this.dataGridView.TabIndex = 3;
             this.dataGridView.RowValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_RowValidated);
             this.dataGridView.UserAddedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserAddedRow);
             this.dataGridView.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView_UserDeletedRow);
+            // 
+            // bindingSource
+            // 
+            this.bindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.bindingSource_AddingNew);
             // 
             // colCode
             // 
@@ -423,6 +454,13 @@
             this.colCode.HeaderText = "Código";
             this.colCode.Name = "colCode";
             this.colCode.ReadOnly = true;
+            // 
+            // colRecNo
+            // 
+            this.colRecNo.DataPropertyName = "RecNo";
+            this.colRecNo.HeaderText = "No.";
+            this.colRecNo.Name = "colRecNo";
+            this.colRecNo.ReadOnly = true;
             // 
             // colPrinted
             // 
@@ -440,39 +478,30 @@
             this.colPrintedOn.ReadOnly = true;
             this.colPrintedOn.Width = 140;
             // 
-            // bindingSource
+            // colPrintedDetails
             // 
-            this.bindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.bindingSource_AddingNew);
-            // 
-            // searchToolStripButton
-            // 
-            this.searchToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.searchToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("searchToolStripButton.Image")));
-            this.searchToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.searchToolStripButton.Name = "searchToolStripButton";
-            this.searchToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.searchToolStripButton.Text = "toolStripButton1";
-            this.searchToolStripButton.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            this.colPrintedDetails.DataPropertyName = "PrintedDetails";
+            this.colPrintedDetails.HeaderText = "Detalles de la impresión";
+            this.colPrintedDetails.Name = "colPrintedDetails";
+            this.colPrintedDetails.ReadOnly = true;
+            this.colPrintedDetails.Width = 300;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(598, 384);
+            this.ClientSize = new System.Drawing.Size(762, 384);
             this.Controls.Add(this.dataGridView);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "LinxPrint";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);
@@ -511,16 +540,13 @@
         private System.Windows.Forms.ToolStripTextBox dateToolStripTextBox;
         private System.Windows.Forms.ToolStripMenuItem printAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem printSelectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel totalCodesToolStripLabel;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel progressLabelToolStrip;
         private System.Windows.Forms.ToolStripProgressBar progressBarToolStrip;
         private System.Windows.Forms.ToolStripStatusLabel portNameToolStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCode;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colPrinted;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedOn;
         private System.Windows.Forms.ToolStripMenuItem serialPortConfigToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripComboBox stateToolStripComboBox;
@@ -532,5 +558,11 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton searchToolStripButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripStatusLabel printedCodesToolStripLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRecNo;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colPrinted;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedOn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPrintedDetails;
     }
 }

@@ -127,6 +127,5 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cbxPortNames;
-        private string _portName;
     }
 }

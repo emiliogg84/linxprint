@@ -10,7 +10,6 @@ namespace LinxPrint
     using System.Configuration;
     using System.Windows.Forms;
     using LinxPrint.Model;
-    using LinxPrint.Printers;
     using LinxPrint.Log;
     using System.Collections.Generic;
 
@@ -19,6 +18,8 @@ namespace LinxPrint
         private readonly ItemsManager _itemsManager;
         private string _portName = "COM1";
         private bool _loading = false; //Control the grid states
+        private bool _importing = false;
+        private bool _importingCancelled = false;
 
         private void ShowItemCodes(DateTime? date, int state)
         {
@@ -75,9 +76,10 @@ namespace LinxPrint
 
             _portName = ConfigurationManager.AppSettings.Get("ComPortName");
 
-            stateToolStripComboBox.SelectedIndex = 0;
+            stateToolStripComboBox.SelectedIndex = 2;
 
             UpdateComponentStatus();
+            UpdateStatusbarInfo();
         }
 
         public MainForm()
@@ -114,11 +116,22 @@ namespace LinxPrint
             {
                 ShowItemCodes(null, stateToolStripComboBox.SelectedIndex);
             }
+
+            UpdateStatusbarInfo();
         }
 
         private void printAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var items = _itemsManager.Get().ToList();
+            var items = _itemsManager.Get().Where(i => !i.Printed).ToList();
+
+            if (items.Count == 0)
+            {
+                MessageBox.Show("No hay códigos disponibles para imprimir!",
+                            this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return;
+            }
+
             ShowPrintingProgress();
 
             try
@@ -134,13 +147,11 @@ namespace LinxPrint
                 HidePrintingProgress();
             }
 
-            bindingSource.ResetBindings(false);
+            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
         }
 
         private void HidePrintingProgress()
         {
-            progressBarToolStrip.Enabled = false;
-            progressBarToolStrip.Visible = false;
             progressLabelToolStrip.Visible = false;
         }
 
@@ -148,8 +159,6 @@ namespace LinxPrint
         {
             progressLabelToolStrip.Text = "Imprimiendo...";
             progressLabelToolStrip.Visible = true;
-            progressBarToolStrip.Enabled = true;
-            progressBarToolStrip.Visible = true;
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -165,16 +174,23 @@ namespace LinxPrint
             UpdateComponentStatus();
         }
 
+        private void UpdateStatusbarInfo()
+        {
+            var totalCodes = _itemsManager.Get().Count();
+            var printedCodes = _itemsManager.Get().Where(i => i.Printed).Count();
+            totalCodesToolStripLabel.Text = string.Format("Total de códigos: {0}", totalCodes);
+            printedCodesToolStripLabel.Text = string.Format("Códigos impreso: {0}", printedCodes);
+        }
+
         private void UpdateComponentStatus()
         {
             portNameToolStrip.Text = string.Format("Puerto: {0}", _portName);
-            printAllToolStripMenuItem.Enabled = bindingSource.List != null && bindingSource.List.Count > 0;
+            printAllToolStripMenuItem.Enabled = bindingSource.List != null && bindingSource.List.Count >= 1;
             printSelectionToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
             deleteAllToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
             deletePrintedToolStripMenuItem.Enabled = printAllToolStripMenuItem.Enabled;
             printToolStripButton.Enabled = printAllToolStripMenuItem.Enabled;
             deleteToolStripButton.Enabled = printAllToolStripMenuItem.Enabled;
-
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -184,27 +200,53 @@ namespace LinxPrint
 
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<string> codes = new List<string>();
-
             using (var openFileDlg = new OpenFileDialog() { Title = "Importar", Filter = "TXT|*.txt"})
             {
                 if (openFileDlg.ShowDialog() == DialogResult.OK)
                 {
                     this.Cursor = Cursors.WaitCursor;
                     ShowImportingProgress();
+
                     try
                     {
+                        _importing = true;
+                        _importingCancelled = false;
+
+                        var count = 0;
+                        var count2 = 0;
+                        var lastItem = _itemsManager.Get().OrderByDescending(i => i.RecNo).FirstOrDefault();
+                        var recNo = lastItem != null ? lastItem.RecNo : 0;
+
                         using (var sr = new StreamReader(openFileDlg.FileName))
                         {
                             while (!sr.EndOfStream)
                             {
+                                count++;
+                                count2++;
+                                recNo++;
+
                                 var text = sr.ReadLine();
-                                codes.Add(text);
+                                _itemsManager.ImportCode(text, recNo);
+                                Application.DoEvents();
+
+                                if (count >= 100)
+                                {
+                                    _itemsManager.UpdateAll();
+                                    count = 0;
+                                }
+
+                                ShowImportingProgress(count2);
+
+                                if (_importingCancelled) break;
                             }
 
-                            _itemsManager.AddItemCodes(codes.ToArray());
-                            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
+                            _itemsManager.UpdateAll();
                         }
+
+                        MessageBox.Show(string.Format("Finalizado, {0} códigos fueron importados correctamente!", count2),
+                            this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
                     }
                     catch (Exception ex)
                     {
@@ -215,11 +257,18 @@ namespace LinxPrint
                     }
                     finally
                     {
+                        _importing = false;
+                        _importingCancelled = false;
                         this.Cursor = Cursors.Default;
                         HideImportingProgess();
                     }
                 }
             }
+        }
+
+        private void ShowImportingProgress(int index)
+        {
+            progressLabelToolStrip.Text = string.Format("Importando... {0}, presione ESCAPE para cancelar...", index);
         }
 
         private void HideImportingProgess()
@@ -268,6 +317,7 @@ namespace LinxPrint
         {
             var selectedRows = dataGridView.SelectedRows;
             var items = new List<Item>(selectedRows.Count);
+
             ShowPrintingProgress();
 
             try
@@ -275,7 +325,16 @@ namespace LinxPrint
                 foreach (DataGridViewRow selectedRow in selectedRows)
                 {
                     var typedItem = selectedRow.DataBoundItem as Item;
-                    items.Add(typedItem);
+
+                    if (typedItem == null) continue;
+                    if (!typedItem.Printed) items.Add(typedItem);
+                }
+
+                if (items.Count == 0)
+                {
+                    MessageBox.Show("No hay códigos disponibles para imprimir",
+                                this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
                 }
 
                 using (var printForm = new PrintProgressForm(_portName, items))
@@ -289,7 +348,7 @@ namespace LinxPrint
                 HidePrintingProgress();
             }
 
-            bindingSource.ResetBindings(false);
+            dateToolStripTextBox_TextChanged(dateToolStripTextBox, null);
         }
 
         private void serialPortConfigToolStripMenuItem_Click(object sender, EventArgs e)
@@ -351,7 +410,13 @@ namespace LinxPrint
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            bindingSource.RemoveCurrent();
+            var item = bindingSource.Current as Item;
+
+            if (item != null)
+            {
+                _itemsManager.DeleteItem(item);
+                bindingSource.RemoveCurrent();
+            }
         }
 
         private void deletePrintedToolStripMenuItem_Click(object sender, EventArgs e)
@@ -418,14 +483,15 @@ namespace LinxPrint
             bindingSource.DataSource = items;
         }
 
-        private void menuStrip_Enter(object sender, EventArgs e)
-        {
-
-        }
-
         private void menuStrip_MenuActivate(object sender, EventArgs e)
         {
             UpdateComponentStatus();
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            _importingCancelled = e.KeyCode == Keys.Escape && _importing;
+
         }
     }
 }

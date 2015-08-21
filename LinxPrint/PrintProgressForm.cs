@@ -14,11 +14,16 @@ namespace LinxPrint
     public partial class PrintProgressForm : Form
     {
         private readonly SerialPort _serialPort;
+        private readonly string _portName;
+        private readonly string _machineName;
         private IList<Item> _items;
         private string _currentCode = string.Empty;
+        private int _currentRecNo = 0;
         private int _index = 0;
         private bool _printing = false;
         private bool _paused = false;
+        private bool _printSimulation = false;
+        private System.Timers.Timer _timer;
 
         protected override void OnLoad(EventArgs e)
         {
@@ -32,6 +37,7 @@ namespace LinxPrint
             btnPrintPause.Enabled = false;
             btnPrint.Enabled = _items.Count > 0;
             _currentCode = _items[0].Code;
+            _currentRecNo = _items[0].RecNo;
         }
 
         private delegate void PrintNextCodeCallBack();
@@ -50,17 +56,56 @@ namespace LinxPrint
                 if (_index < _items.Count)
                 {
                     _currentCode = _items[_index].Code;
-                    Print(_currentCode);
+                    _currentRecNo = _items[_index].RecNo;
                     ShowPrintingInfo();
+                    Print(_currentCode);
                 }
                 else
                 {
                     _printing = false;
                     _currentCode = string.Empty;
+                    _currentRecNo = 0;
                     if (_serialPort.IsOpen) _serialPort.Close();
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
+            }
+
+            if (_index < _items.Count)
+            {
+                _currentCode = _items[_index].Code;
+                _currentRecNo = _items[_index].RecNo;
+                ShowPrintingInfo();
+            }
+            else
+            {
+                _timer.Enabled = false;
+                _printing = false;
+                _currentCode = string.Empty;
+                _currentRecNo = 0;
+                if (_serialPort.IsOpen) _serialPort.Close();
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+        }
+
+        private void SimulatePrintNextCode()
+        {
+            if (_index < _items.Count)
+            {
+                _currentCode = _items[_index].Code;
+                _currentRecNo = _items[_index].RecNo;
+                ShowPrintingInfo();
+            }
+            else
+            {
+                _timer.Enabled = false;
+                _printing = false;
+                _currentCode = string.Empty;
+                _currentRecNo = 0;
+                _printSimulation = false;
+                btnPrint.Enabled = true;
+                HidePrintingInfo();
             }
         }
 
@@ -75,10 +120,19 @@ namespace LinxPrint
             label2.Visible = true;
             lbCurrentCode.Visible = true;
             lbProgress.Visible = true;
-            lbProgress.Text = string.Format("Imprimiendo pincode {0} de {1}, por favor espere...", _index, _items.Count);
-            lbCurrentCode.Text = _currentCode;
+            lbProgress.Text = string.Format("Imprimiendo pincode {0} de {1}, por favor espere...", _index + 1, _items.Count);
+            lbCurrentCode.Text = string.Format("{0} - No.: {1}", _currentCode, _currentRecNo);
             progressBar.Enabled = true;
             progressBar.Visible = true;
+        }
+
+        private void HidePrintingInfo()
+        {
+            label2.Visible = false;
+            lbCurrentCode.Visible = false;
+            lbProgress.Visible = false;
+            progressBar.Enabled = false;
+            progressBar.Visible = false;
         }
 
 
@@ -92,7 +146,8 @@ namespace LinxPrint
             InitializeComponent();
 
             _items = items;
-
+            _portName = portName;
+            _machineName = Environment.MachineName;
             // Create a new SerialPort object with default settings.
             _serialPort = new SerialPort();
 
@@ -110,24 +165,48 @@ namespace LinxPrint
             // Event handling
             _serialPort.DataReceived += DataReceived;
             _serialPort.ErrorReceived += ErrorReceived;
+
+            //Timer
+            _timer = new System.Timers.Timer();
+            _timer.Interval = 2000;
+            _timer.AutoReset = true;
+            _timer.Enabled = false;
+            _timer.Elapsed += Timer_Elapsed;
+        }
+
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            //Go to next item
+            _index++;
+            //Check status
+            if (_paused) return;
+            //Fire the next step
+            var callback = new PrintNextCodeCallBack(SimulatePrintNextCode);
+            this.Invoke(callback);
         }
 
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             if (_serialPort.IsOpen) _serialPort.Close();
             LogFactory.CreateLog().LogError(string.Format("Error received for text: {0}", _currentCode), null);
+            //Fire the next step
+            var callback = new PrintNextCodeCallBack(PrintNextCode);
+            this.Invoke(callback);
         }
 
         private void DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (e.EventType == SerialData.Eof)
+            if (_index >= _items.Count)
             {
-                if (_index >= _items.Count)
-                    _printing = false;
+                _printing = false;
                 return;
             }
 
+            if (e.EventType == SerialData.Eof)
+                return;
+
             var received = _serialPort.ReadExisting();
+
             if (received.Contains(1.ToString()))
             {
                 LogFactory.CreateLog().LogInfo(string.Format("Successfully printed text: {0}", _currentCode));
@@ -135,7 +214,8 @@ namespace LinxPrint
                 var item = _items[_index];
                 item.Printed = true;
                 item.PrintedOn = DateTime.Now;
-                //Go to the next item
+                item.PrintedDetails = string.Format("PC: {0}, Puerto: {1}", _machineName, _portName);
+                //Go to next item
                 _index++;
                 //Check status
                 if (_paused) return;
@@ -159,7 +239,12 @@ namespace LinxPrint
 
             if (!_serialPort.IsOpen) return;
 
+            _index = 0;
+            _paused = false;
             _printing = true;
+            _currentCode = string.Empty;
+            _currentRecNo = 0;
+            _printSimulation = false;
             btnPrintPause.Enabled = true;
             btnPrint.Enabled = false;
 
@@ -172,14 +257,18 @@ namespace LinxPrint
             {
                 _paused = true;
                 btnPrintPause.Text = "Resumir";
-                lbProgress.Text = "Impresión en pausa, presione resumir para continuar";
+                lbProgress.Text = "Impresión detenida, presione resumir para continuar";
                 progressBar.Enabled = false;
             }
             else
             {
                 _paused = false;
                 btnPrintPause.Text = "Pausar";
-                PrintNextCode();
+
+                if (_printSimulation)
+                    SimulatePrintNextCode();
+                else
+                    PrintNextCode();
             }
         }
 
@@ -190,6 +279,21 @@ namespace LinxPrint
                 {
                     if (_serialPort.IsOpen) _serialPort.Close();
                 }
+        }
+
+        private void btnSimulatePrinting_Click(object sender, EventArgs e)
+        {
+            _index = 0;
+            _paused = false;
+            _printing = true;
+            _currentCode = string.Empty;
+            _currentRecNo = 0;
+            _printSimulation = true;
+            btnPrintPause.Enabled = true;
+            btnPrint.Enabled = false;
+            _timer.Enabled = true;
+
+            SimulatePrintNextCode();
         }
     }
 }

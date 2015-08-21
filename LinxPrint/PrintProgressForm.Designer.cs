@@ -37,6 +37,7 @@
             this.btnPrint = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.lbTotalCodes = new System.Windows.Forms.Label();
+            this.btnSimulatePrinting = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // progressBar
@@ -80,6 +81,7 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Location = new System.Drawing.Point(332, 198);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(85, 25);
@@ -130,12 +132,23 @@
             this.lbTotalCodes.TabIndex = 8;
             this.lbTotalCodes.Text = "0";
             // 
+            // btnSimulatePrinting
+            // 
+            this.btnSimulatePrinting.Location = new System.Drawing.Point(30, 198);
+            this.btnSimulatePrinting.Name = "btnSimulatePrinting";
+            this.btnSimulatePrinting.Size = new System.Drawing.Size(120, 25);
+            this.btnSimulatePrinting.TabIndex = 9;
+            this.btnSimulatePrinting.Text = "Simular impresión";
+            this.btnSimulatePrinting.UseVisualStyleBackColor = true;
+            this.btnSimulatePrinting.Click += new System.EventHandler(this.btnSimulatePrinting_Click);
+            // 
             // PrintProgressForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(449, 239);
+            this.ClientSize = new System.Drawing.Size(448, 239);
+            this.Controls.Add(this.btnSimulatePrinting);
             this.Controls.Add(this.lbTotalCodes);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnPrint);
@@ -168,5 +181,6 @@
         private System.Windows.Forms.Button btnPrint;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbTotalCodes;
+        private System.Windows.Forms.Button btnSimulatePrinting;
     }
 }

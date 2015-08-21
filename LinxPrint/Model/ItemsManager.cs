@@ -26,6 +26,12 @@ namespace LinxPrint.Model
             _dataContext.SaveChanges();
         }
 
+        public void ImportCode(string code, int recNo)
+        {
+            if (!_items.Any(i => i.Code.Equals(code)))
+                _items.Add(new Item { Code = code, RecNo = recNo});
+        }
+
         public void AddItemCodes(params string[] codes)
         {
             Item item = null;
@@ -63,12 +69,14 @@ namespace LinxPrint.Model
             var itemsPrinted = _items.Where(i => i.Printed).AsEnumerable();
             _items.RemoveRange(itemsPrinted);
             _dataContext.SaveChanges();
+            _dataContext.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, "VACUUM;");
         }
 
         public void DeleteAllItems()
         {
             _items.RemoveRange(_items.AsEnumerable());
             _dataContext.SaveChanges();
+            _dataContext.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, "VACUUM;");
         }
 
         public IEnumerable<Item> GetAll()
